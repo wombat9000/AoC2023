@@ -1,10 +1,15 @@
+package day1
+
+import println
+import readInput
+
 fun main() {
     val input = readInput("Day01")
     part1(input).println()
     part2(input).println()
 }
 
-fun part1(input: List<String>): Int {
+internal fun part1(input: List<String>): Int {
     return input.sumOf { line ->
         val firstDigit = line.first { it.isDigit() }
         val lastDigit = line.last { it.isDigit() }
@@ -12,7 +17,7 @@ fun part1(input: List<String>): Int {
     }
 }
 
-fun part2(input: List<String>): Int {
+internal fun part2(input: List<String>): Int {
     return input.sumOf { line ->
         try {
             val digits = replaceNumberWords(line)
