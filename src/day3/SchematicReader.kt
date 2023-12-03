@@ -13,16 +13,12 @@ object SchematicReader {
     fun readPartsSum(window: List<String>): Int {
         require(window.size == 3) { "Window must have size 3" }
 
-        val symbolIndexes = window.flatMap { row ->
-            row.mapIndexed { index, char -> index to char }
-                .filter { it.second in SYMBOLS }
-                .map { it.first }
-        }.distinct().sorted()
+        // get all symbols from window
+        val symbolIndexes = window.flatMap(::getSymbolIndicesFromLine).distinct()
         if (symbolIndexes.isEmpty()) return 0
 
-        val numbersForRow = getNumbersForRow(window[1])
-
-        return numbersForRow
+        // sum up relevant part numbers for middle line
+        return getPartsFromLine(window[1])
             .toList().filter { it.isAdjacentToAny(symbolIndexes) }
             .sumOf { it.value }
     }
@@ -30,30 +26,30 @@ object SchematicReader {
     fun readGears(window: List<String>): Int {
         require(window.size == 3) { "Window must have size 3" }
 
-        val topRowNumbers = getNumbersForRow(window[0])
-        val middleRowNumbers = getNumbersForRow(window[1])
-        val bottomRowNumbers = getNumbersForRow(window[2])
+        // get all parts from window
+        val allParts = window.flatMap(::getPartsFromLine)
 
-        val allParts = topRowNumbers.plus(middleRowNumbers).plus(bottomRowNumbers)
-
-        val gearIndices = window[1].mapIndexed { index, char -> index to char }
-                .filter { it.second == '*' }
-                .map { it.first }
-        if (gearIndices.isEmpty()) return 0
-
-
-        val gearRatios = gearIndices.map { gearIndex ->
-            val adjacentParts = allParts.filter { it.isAdjacentToAny(listOf(gearIndex)) }
-            if (adjacentParts.size != 2) return@map 0
-            adjacentParts.first().value * adjacentParts.last().value
-        }.sum()
-        return gearRatios
+        // sum up gear ratios for middle line
+        return window[1].mapIndexed { index, char -> index to char }
+            .filter { it.second == '*' }
+            .map { it.first }
+            .sumOf { gearIndex ->
+                val adjacentParts = allParts.filter { it.isAdjacentToAny(listOf(gearIndex)) }
+                if (adjacentParts.size != 2) return@sumOf 0
+                adjacentParts.first().value * adjacentParts.last().value
+            }
     }
 
-    private fun getNumbersForRow(line: String): List<NumberCoords> {
+    private fun getPartsFromLine(line: String): List<NumberCoords> {
         val numberPattern = "\\d+".toRegex()
         return numberPattern.findAll(line)
             .map { match -> NumberCoords(match.value.toInt(), match.range.first, match.range.last) }
             .toList()
+    }
+
+    private fun getSymbolIndicesFromLine(line: String): List<Int> {
+        return line.mapIndexed { index, char -> index to char }
+            .filter { it.second in SYMBOLS }
+            .map { it.first }
     }
 }
