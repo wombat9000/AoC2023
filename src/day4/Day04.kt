@@ -6,7 +6,7 @@ import readInput
 fun main() {
     val testInput = "day4/test/test1"
     val day4Input = "day4/Day04"
-    val input = readInput(testInput)
+    val input = readInput(day4Input)
 
 //    println("Day 04, Part 1: ${part1(input)}")
     println("Day 04, Part 2: ${part2(input)}")
@@ -47,21 +47,21 @@ tailrec fun determineCardsWon(
     scoredCards: List<ScoreCard>
 ): List<ScoreCard> {
 
-//    println("current hand: $hand")
-
     if (hand.isEmpty()) return scoredCards
 
-    val head = hand.last()
-    println("looking at ${head.cardNo}, scored: ${scoredCards.size}")
-    val tail = hand.dropLast(1)
+    val head = hand.first()
+    val headNo = head.cardNo
 
-    val cardsToDraw = allCards
-        .filter { it.cardNo > head.cardNo }
-        .take(head.countWinners())
+    val copies = hand.filter { it.cardNo == headNo }
+    val rest = hand.filter { it.cardNo != headNo }
 
-    val newHand = tail.plus(cardsToDraw)
+    val cardsToDraw = copies.flatMap { it ->
+        allCards.filter { it.cardNo > head.cardNo }
+            .take(head.countWinners())
+    }
 
-    return determineCardsWon(allCards, newHand, scoredCards.plus(hand.first()))
+    val newHand = rest.plus(cardsToDraw)
+    return determineCardsWon(allCards, newHand, scoredCards.plus(copies))
 }
 
 fun countScore(line: String): Int {
