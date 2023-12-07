@@ -76,4 +76,20 @@ class HandTest {
 
         assertTrue(fiveOfAKind > fourOfAKind)
     }
+
+    @Test
+    fun `J should upgrade the hand`() {
+        val twoPairJoker = Hand(listOf(CamelCard.`3`, CamelCard.`3`, CamelCard.`2`, CamelCard.`2`, CamelCard.J), 0L)
+        val twoPair = Hand(listOf(CamelCard.`3`, CamelCard.`3`, CamelCard.`2`, CamelCard.`2`, CamelCard.`5`), 0L)
+
+        assertTrue(twoPairJoker > twoPair)
+    }
+
+    @Test
+    fun `multiple j should upgrade the hand even more`() {
+        val fiveWithJoker = Hand(listOf(CamelCard.`3`, CamelCard.J, CamelCard.J, CamelCard.J, CamelCard.J), 0L)
+        val fourOfAKind = Hand(listOf(CamelCard.`3`, CamelCard.`3`, CamelCard.`3`, CamelCard.`3`, CamelCard.`5`), 0L)
+
+        assertTrue(fiveWithJoker > fourOfAKind)
+    }
 }

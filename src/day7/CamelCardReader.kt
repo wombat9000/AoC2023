@@ -7,7 +7,6 @@ enum class CamelCard(val value: Int) {
     A(14),
     K(13),
     Q(12),
-    J(11),
     T(10),
     `9`(9),
     `8`(8),
@@ -16,7 +15,8 @@ enum class CamelCard(val value: Int) {
     `5`(5),
     `4`(4),
     `3`(3),
-    `2`(2)
+    `2`(2),
+    J(1)
 }
 
 enum class WinCondition {
@@ -26,20 +26,33 @@ enum class WinCondition {
     THREE_OF_A_KIND,
     FULL_HOUSE,
     FOUR_OF_A_KIND,
-    FIVE_OF_A_KIND
+    FIVE_OF_A_KIND;
+
+    fun applyJokerUpgrade(): WinCondition {
+        return when (this) {
+            HIGH_CARD -> PAIR
+            PAIR -> THREE_OF_A_KIND
+            TWO_PAIR -> FULL_HOUSE
+            THREE_OF_A_KIND -> FOUR_OF_A_KIND
+            FOUR_OF_A_KIND -> FIVE_OF_A_KIND
+            else -> this
+        }
+    }
 }
 
 data class Hand(val cards: List<CamelCard>, val bid: Long) : Comparable<Hand> {
 
-    val winCondition: WinCondition = determineWinCondition()
+    val winCondition: WinCondition = determineStandardWinCondition()
 
-    private fun determineWinCondition(): WinCondition {
-        val pairs = cards.groupBy { it }.filter { it.value.size == 2 }
-        val triples = cards.groupBy { it }.filter { it.value.size == 3 }
-        val fourOfAKind = cards.groupBy { it }.filter { it.value.size == 4 }
-        val fiveOfAKind = cards.groupBy { it }.filter { it.value.size == 5 }
+    private fun determineStandardWinCondition(): WinCondition {
+        val jokers = cards.filter { it == CamelCard.J }.size
+        val regularCards = cards.filter { it != CamelCard.J }
+        val pairs = regularCards.groupBy { it }.filter { it.value.size == 2 }
+        val triples = regularCards.groupBy { it }.filter { it.value.size == 3 }
+        val fourOfAKind = regularCards.groupBy { it }.filter { it.value.size == 4 }
+        val fiveOfAKind = regularCards.groupBy { it }.filter { it.value.size == 5 }
 
-        return when {
+        val originalCondition = when {
             fiveOfAKind.size == 1 -> WinCondition.FIVE_OF_A_KIND
             fourOfAKind.size == 1 -> WinCondition.FOUR_OF_A_KIND
             triples.size == 1 && pairs.size == 1 -> WinCondition.FULL_HOUSE
@@ -48,13 +61,15 @@ data class Hand(val cards: List<CamelCard>, val bid: Long) : Comparable<Hand> {
             pairs.size == 1 -> WinCondition.PAIR
             else -> WinCondition.HIGH_CARD
         }
+
+        return (1..jokers).fold(originalCondition) { acc, _ -> acc.applyJokerUpgrade() }
     }
 
     override fun compareTo(other: Hand): Int {
         return if (winCondition != other.winCondition) {
             winCondition.compareTo(other.winCondition)
         } else {
-           // compare cards in order until one is better than the other:
+            // compare cards in order until one is better than the other:
             cards.zip(other.cards).forEach { (card1, card2) ->
                 if (card1 != card2) {
                     return card1.value.compareTo(card2.value)
