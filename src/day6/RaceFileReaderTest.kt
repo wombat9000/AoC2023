@@ -20,4 +20,13 @@ class RaceFileReaderTest {
             result
         )
     }
+
+    @Test
+    fun `should read single race`() {
+        val reader = RaceFileReader("day6/Day06.test")
+
+        val result = reader.readSingleRace()
+
+        assertEquals(Race(71530, 940200), result)
+    }
 }

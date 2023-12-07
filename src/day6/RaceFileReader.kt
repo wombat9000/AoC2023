@@ -17,4 +17,12 @@ class RaceFileReader(val fileName: String) {
         }
     }
 
+    fun readSingleRace(): Race {
+        val lines = readInput(fileName)
+
+        val duration = lines.first().split(":").last().filter { it.isDigit() }.trim().toLong()
+        val distance = lines.last().split(":").last().filter { it.isDigit() }.trim().toLong()
+
+        return Race(duration,distance)
+    }
 }
