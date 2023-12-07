@@ -1,12 +1,8 @@
 package day5
 
-import readInput
 
 fun main() {
-
     val reader = FileReader("day5/Day05")
-
-
 
     println("Day 05, Part 1: ${part1(reader)}")
     println("Day 05, Part 2: ${part2(reader)}")
@@ -46,21 +42,16 @@ fun part2(reader: FileReader) {
     val humidRepo = MappingRepository(reader.readMapping(MappingType.TEMP_TO_HUMID))
     val locationRepo = MappingRepository(reader.readMapping(MappingType.HUMID_TO_LOC))
 
-    val ranges = reader.seedsP2
-
-    println(ranges)
-
-    val locations = ranges
+    val locations = reader.seedsP2
         .asSequence()
-        .flatMap { it.toList().asSequence() }
-        .map { soilsRepo.getDestinationMappingForSource(it) }
-        .map { fertilizerRepo.getDestinationMappingForSource(it) }
-        .map { waterRepo.getDestinationMappingForSource(it) }
-        .map { lightRepo.getDestinationMappingForSource(it) }
-        .map { tempRepo.getDestinationMappingForSource(it) }
-        .map { humidRepo.getDestinationMappingForSource(it) }
-        .map { locationRepo.getDestinationMappingForSource(it) }
+        .flatMap { soilsRepo.getDestinationRangeForSourceRange(it) }
+        .flatMap { fertilizerRepo.getDestinationRangeForSourceRange(it) }
+        .flatMap { waterRepo.getDestinationRangeForSourceRange(it) }
+        .flatMap { lightRepo.getDestinationRangeForSourceRange(it) }
+        .flatMap { tempRepo.getDestinationRangeForSourceRange(it) }
+        .flatMap { humidRepo.getDestinationRangeForSourceRange(it) }
+        .flatMap { locationRepo.getDestinationRangeForSourceRange(it) }
         .toList()
 
-    println(locations.min())
+    println("Part2 Result: ${locations.minOfOrNull { it.first }}")
 }
