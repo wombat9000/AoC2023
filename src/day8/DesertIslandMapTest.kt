@@ -18,4 +18,12 @@ class DesertIslandMapTest {
         assertEquals(Directions("BBB", "CCC"), map.mappings["AAA"])
         assertEquals(Directions("DDD", "EEE"), map.mappings["BBB"])
     }
+
+    @Test
+    fun `should read all starting points`() {
+        val reader = MapReader("day8/Day08.test3")
+        val startingPoints = reader.getMap().getStartingPoints()
+
+        assertEquals(listOf("11A", "22A"), startingPoints)
+    }
 }

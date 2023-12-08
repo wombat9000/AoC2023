@@ -12,6 +12,10 @@ class DesertIslandMap(mapLines: List<String>) {
         val (left, right) = value.drop(1).dropLast(1).split(", ")
         key to Directions(left, right)
     }
+
+    fun getStartingPoints(): List<String> {
+        return mappings.keys.filter { it.endsWith("A") }
+    }
 }
 
 class MapReader(input: String) {

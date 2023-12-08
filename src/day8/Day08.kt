@@ -13,20 +13,22 @@ fun main() {
 
 fun part1(input: String): Long {
     val mapReader = MapReader(input)
-
     val instructions = mapReader.getInstructionSequence()
     val map = mapReader.getMap()
-    val infiniteInstructions = generateSequence(0) { (it + 1) % instructions.size }
-        .map { instructions[it] }
-    return followInstructions(infiniteInstructions, map, "AAA")
+    return followInstructionsP1(instructions, map, "AAA")
 }
 
 fun part2(input: String): Long {
-    TODO()
+    val mapReader = MapReader(input)
+    val instructions = mapReader.getInstructionSequence()
+    val desertMap = mapReader.getMap()
+    val startingPoints = desertMap.getStartingPoints()
+
+    return 0L
 }
 
-tailrec fun followInstructions(
-    instructions: Sequence<Char>,
+tailrec fun followInstructionsP1(
+    instructions: List<Char>,
     map: DesertIslandMap,
     location: String,
     steps: Long = 0
@@ -35,11 +37,13 @@ tailrec fun followInstructions(
         return steps
     }
 
-    val nextLocation = when (val nextInstruction = instructions.first()) {
+    val nextIndex = (steps % instructions.size).toInt()
+
+    val nextLocation = when (val nextInstruction = instructions[nextIndex]) {
         'L' -> map.mappings[location]?.left
         'R' -> map.mappings[location]?.right
         else -> throw IllegalArgumentException("Unknown instruction: $nextInstruction")
     } ?: throw IllegalArgumentException("Unknown location: $location")
 
-    return followInstructions(instructions.drop(1), map, nextLocation, steps + 1)
+    return followInstructionsP1(instructions, map, nextLocation, steps + 1)
 }
